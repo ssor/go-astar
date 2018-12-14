@@ -11,7 +11,7 @@ type Pather interface {
 	// can be pathed to.
 	PathNeighbors() []Pather
 	// PathNeighborCost calculates the exact movement cost to neighbor nodes.
-	PathNeighborCost(to Pather) float64
+	PathNeighborCost(parent, to Pather) float64
 	// PathEstimatedCost is a heuristic method for estimating movement costs
 	// between non-adjacent nodes.
 	PathEstimatedCost(to Pather) float64
@@ -74,7 +74,11 @@ func Path(from, to Pather) (path []Pather, distance float64, found bool) {
 		}
 
 		for _, neighbor := range current.pather.PathNeighbors() {
-			cost := current.cost + current.pather.PathNeighborCost(neighbor)
+			var parent Pather
+			if current.parent != nil {
+				parent = current.parent.pather
+			}
+			cost := current.cost + current.pather.PathNeighborCost(parent, neighbor)
 			neighborNode := nm.get(neighbor)
 			if cost < neighborNode.cost {
 				if neighborNode.open {

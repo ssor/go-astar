@@ -61,10 +61,11 @@ var KindCosts = map[int]float64{
 type Direction int
 
 const (
-	North = 0
-	South = 1
-	West  = 2
-	East  = 3
+	NoDirection = -1
+	North       = 0
+	South       = 1
+	West        = 2
+	East        = 3
 )
 
 // A Tile is a tile in a grid which implements Pather.
@@ -97,14 +98,41 @@ func (t *Tile) PathNeighbors() []Pather {
 	return neighbors
 }
 
+func (t *Tile) calculateDirection(parent *Tile) (d Direction) {
+	d = NoDirection
+	if parent == nil {
+		return
+	}
+	if parent.X > t.X {
+		return West
+	}
+	if parent.X < t.X {
+		return East
+	}
+	if parent.Y > t.Y {
+		return North
+	}
+	if parent.Y < t.Y {
+		return South
+	}
+	return
+}
+
 // PathNeighborCost returns the movement cost of the directly neighboring tile.
-func (t *Tile) PathNeighborCost(to Pather) float64 {
+func (t *Tile) PathNeighborCost(parent, to Pather) float64 {
+	var parentT *Tile
+	if parent != nil {
+		parentT = parent.(*Tile)
+	}
 	toT := to.(*Tile)
-	if t.Direction == toT.Direction {
+	directionCurrent := t.calculateDirection(parentT)
+	directionNext := toT.calculateDirection(t)
+	if directionCurrent == NoDirection ||
+		directionNext == NoDirection ||
+		directionCurrent == directionNext {
 		return KindCosts[toT.Kind]
 	} else {
 		return KindCosts[toT.Kind] * 2
-		//return 100
 	}
 }
 
