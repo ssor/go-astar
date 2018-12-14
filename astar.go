@@ -64,7 +64,7 @@ func Path(from, to Pather) (path []Pather, distance float64, found bool) {
 
 		if current == nm.get(to) {
 			// Found a path to the goal.
-			p := []Pather{}
+			var p []Pather
 			curr := current
 			for curr != nil {
 				p = append(p, curr.pather)

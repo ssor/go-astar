@@ -58,12 +58,23 @@ var KindCosts = map[int]float64{
 	KindMountain: 3.0,
 }
 
+type Direction int
+
+const (
+	North = 0
+	South = 1
+	West  = 2
+	East  = 3
+)
+
 // A Tile is a tile in a grid which implements Pather.
 type Tile struct {
 	// Kind is the kind of tile, potentially affecting movement.
 	Kind int
 	// X and Y are the coordinates of the tile.
 	X, Y int
+	// direction is important, as changing direction costs more
+	Direction Direction //
 	// W is a reference to the World that the tile is a part of.
 	W World
 }
@@ -71,7 +82,7 @@ type Tile struct {
 // PathNeighbors returns the neighbors of the tile, excluding blockers and
 // tiles off the edge of the board.
 func (t *Tile) PathNeighbors() []Pather {
-	neighbors := []Pather{}
+	var neighbors []Pather
 	for _, offset := range [][]int{
 		{-1, 0},
 		{1, 0},
@@ -89,7 +100,12 @@ func (t *Tile) PathNeighbors() []Pather {
 // PathNeighborCost returns the movement cost of the directly neighboring tile.
 func (t *Tile) PathNeighborCost(to Pather) float64 {
 	toT := to.(*Tile)
-	return KindCosts[toT.Kind]
+	if t.Direction == toT.Direction {
+		return KindCosts[toT.Kind]
+	} else {
+		return KindCosts[toT.Kind] * 2
+		//return 100
+	}
 }
 
 // PathEstimatedCost uses Manhattan distance to estimate orthogonal distance
